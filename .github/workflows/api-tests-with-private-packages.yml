@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: make install-packages
+        run: make install-packages opts="--with saml,auth-controller"
 
       - name: Checkout rbac package
         uses: actions/checkout@v4
@@ -60,6 +60,23 @@ jobs:
 
       - name: integrate rbac tests
         run: ln -s $GITHUB_WORKSPACE/flagsmith-rbac/tests tests/rbac_tests
+        shell: bash
+        working-directory: api
+
+      - name: Checkout Auth Controller package
+        uses: actions/checkout@v4
+        with:
+          repository: flagsmith/flagsmith-auth-controller
+          token: ${{ secrets.GH_PRIVATE_ACCESS_TOKEN }}
+          ref: ${{ env.FLAGSMITH_AUTH_CONTROLLER_REVISION }}
+          path: ./flagsmith-auth-controller
+
+      - name: Integrate Auth Controller module
+        run: mv $GITHUB_WORKSPACE/flagsmith-auth-controller/auth_controller .
+        shell: bash
+
+      - name: integrate auth_controller tests
+        run: ln -s $GITHUB_WORKSPACE/flagsmith-auth-controller/tests tests/auth_controller_tests
         shell: bash
         working-directory: api
 
