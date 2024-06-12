@@ -1,10 +1,13 @@
 name: Run API tests with private package
 
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#     types: [labeled]
+
 on:
-  pull_request:
-    branches:
-      - main
-    types: [labeled]
+  push:
 
 defaults:
   run:
@@ -17,7 +20,7 @@ env:
 
 jobs:
   test:
-    if: ${{ github.event.label.name == 'api' }}
+    #if: ${{ github.event.label.name == 'api' }}
     runs-on: ubuntu-latest
     name: API Tests
 
@@ -47,7 +50,7 @@ jobs:
         run: make install-packages opts="--with saml,auth-controller"
 
       - name: Install SAML Dependencies
-        run: apt-get update && apt-get install -y xmlsec1
+        run: sudo apt-get install -y xmlsec1
 
       - name: Checkout rbac package
         uses: actions/checkout@v4
