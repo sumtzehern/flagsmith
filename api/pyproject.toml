@@ -126,7 +126,7 @@ django-multiselectfield = "~0.1.12"
 optional = true
 
 [tool.poetry.group.saml.dependencies]
-pysaml2 = "^7.0.0"
+pysaml2 = "^7.4.2"
 
 [tool.poetry.group.ldap]
 optional = true
