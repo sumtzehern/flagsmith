@@ -68,7 +68,7 @@ def test_authenticate_raises_authentication_failed_if_organisation_set_to_stop_s
 
 # TODO: this test should not be here?
 def test_brute_force_access_attempts(db: None, settings: SettingsWrapper) -> None:
-    invalid_user_name = "invalid_user"
+    invalid_user_name = "invalid_user@mail.com"
     login_attempts_to_make = settings.AXES_FAILURE_LIMIT + 1
 
     assert AccessAttempt.objects.all().count() == 0

@@ -330,7 +330,11 @@ def test_throttle_signup(api_client, settings, user_password, db, reset_cache):
     # verify that a throttle rate exists already then set it
     # to something easier to reliably test
     assert settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["signup"]
-    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["signup"] = "1/min"
+
+    rest_framework_settings = settings.REST_FRAMEWORK.copy()
+    rest_framework_settings["DEFAULT_THROTTLE_RATES"]["signup"] = "1/minute"
+    settings.REST_FRAMEWORK = rest_framework_settings
+
     # Next, let's hit signup for the first time
     register_data = {
         "email": "user_1_email@mail.com",
@@ -356,7 +360,10 @@ def test_throttle_signup(api_client, settings, user_password, db, reset_cache):
 
 def test_get_user_is_not_throttled(admin_client, settings, reset_cache):
     # Given
-    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["signup"] = "1/min"
+    rest_framework_settings = settings.REST_FRAMEWORK.copy()
+    rest_framework_settings["DEFAULT_THROTTLE_RATES"]["signup"] = "1/minute"
+    settings.REST_FRAMEWORK = rest_framework_settings
+
     url = reverse("api-v1:custom_auth:ffadminuser-me")
     # When
     for _ in range(2):
