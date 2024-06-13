@@ -292,7 +292,10 @@ def test_throttle_login_workflows(
     # verify that a throttle rate exists already then set it
     # to something easier to reliably test
     assert settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["login"]
-    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["login"] = "1/sec"
+
+    rest_framework_settings = settings.REST_FRAMEWORK.copy()
+    rest_framework_settings["DEFAULT_THROTTLE_RATES"]["login"] = "1/minute"
+    settings.REST_FRAMEWORK = rest_framework_settings
 
     email = "test@example.com"
     password = FFAdminUser.objects.make_random_password()
