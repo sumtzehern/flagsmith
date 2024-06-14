@@ -11,7 +11,7 @@ on:
       - api/**
       - .github/**
     branches:
-      - blah # temp
+      - main
 
 defaults:
   run:
