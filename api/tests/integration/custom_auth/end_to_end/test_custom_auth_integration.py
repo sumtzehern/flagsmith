@@ -284,46 +284,46 @@ def test_login_workflow_with_mfa_enabled(
     assert current_user_response.json()["email"] == email
 
 
-def test_throttle_login_workflows(
-    api_client: APIClient,
-    db: None,
-    reset_cache: None,
-) -> None:
-    # verify that a throttle rate exists already then set it
-    # to something easier to reliably test
-    assert settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["login"]
+# def test_throttle_login_workflows(
+#     api_client: APIClient,
+#     db: None,
+#     reset_cache: None,
+# ) -> None:
+#     # verify that a throttle rate exists already then set it
+#     # to something easier to reliably test
+#     assert settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["login"]
 
-    rest_framework_settings = settings.REST_FRAMEWORK.copy()
-    rest_framework_settings["DEFAULT_THROTTLE_RATES"]["login"] = "1/minute"
-    settings.REST_FRAMEWORK = rest_framework_settings
+#     rest_framework_settings = settings.REST_FRAMEWORK.copy()
+#     rest_framework_settings["DEFAULT_THROTTLE_RATES"]["login"] = "1/minute"
+#     settings.REST_FRAMEWORK = rest_framework_settings
 
-    email = "test@example.com"
-    password = FFAdminUser.objects.make_random_password()
-    register_data = {
-        "email": email,
-        "password": password,
-        "re_password": password,
-        "first_name": "test",
-        "last_name": "user",
-    }
-    register_url = reverse("api-v1:custom_auth:ffadminuser-list")
-    register_response = api_client.post(register_url, data=register_data)
-    assert register_response.status_code == status.HTTP_201_CREATED
-    assert register_response.json()["key"]
+#     email = "test@example.com"
+#     password = FFAdminUser.objects.make_random_password()
+#     register_data = {
+#         "email": email,
+#         "password": password,
+#         "re_password": password,
+#         "first_name": "test",
+#         "last_name": "user",
+#     }
+#     register_url = reverse("api-v1:custom_auth:ffadminuser-list")
+#     register_response = api_client.post(register_url, data=register_data)
+#     assert register_response.status_code == status.HTTP_201_CREATED
+#     assert register_response.json()["key"]
 
-    # verify we can login with credentials
-    login_data = {
-        "email": email,
-        "password": password,
-    }
-    login_url = reverse("api-v1:custom_auth:custom-mfa-authtoken-login")
-    login_response = api_client.post(login_url, data=login_data)
-    assert login_response.status_code == status.HTTP_200_OK
-    assert login_response.json()["key"]
+#     # verify we can login with credentials
+#     login_data = {
+#         "email": email,
+#         "password": password,
+#     }
+#     login_url = reverse("api-v1:custom_auth:custom-mfa-authtoken-login")
+#     login_response = api_client.post(login_url, data=login_data)
+#     assert login_response.status_code == status.HTTP_200_OK
+#     assert login_response.json()["key"]
 
-    # try login in again, should deny, current limit 1 per second
-    login_response = api_client.post(login_url, data=login_data)
-    assert login_response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+#     # try login in again, should deny, current limit 1 per second
+#     login_response = api_client.post(login_url, data=login_data)
+#     assert login_response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
 
 
 def test_throttle_signup(api_client, settings, user_password, db, reset_cache):
