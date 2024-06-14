@@ -44,10 +44,27 @@ jobs:
 
       - name: Install Dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: make install-packages opts="--with saml,auth-controller"
+        run: make install-packages opts="--with saml,auth-controller,workflows"
 
       - name: Install SAML Dependencies
         run: sudo apt-get install -y xmlsec1
+
+      - name: Get workflows-logic package version
+        id: get_workflow_version
+        run: echo "::set-output name=workflow_version::$(poetry show workflows-logic | awk '/version/ { print $3 }')"
+
+      - name: Checkout workflow package
+        uses: actions/checkout@v4
+        with:
+          repository: flagsmith/flagsmith-workflows
+          token: ${{ secrets.GH_PRIVATE_ACCESS_TOKEN }}
+          ref: ${{ steps.get_workflow_version.outputs.workflow_version }}
+          path: ./workflows_logic
+
+      - name: integrate workflow tests
+        run: ln -s $GITHUB_WORKSPACE/workflows_logic/tests tests/workflow_logic/tests
+        shell: bash
+        working-directory: api
 
       - name: Checkout rbac package
         uses: actions/checkout@v4
