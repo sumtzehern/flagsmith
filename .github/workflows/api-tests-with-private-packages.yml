@@ -44,7 +44,11 @@ jobs:
 
       - name: Install Dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: make install-packages opts="--with saml,auth-controller,workflows"
+        run: |
+          echo "https://${{ secrets.GH_PRIVATE_ACCESS_TOKEN }}:@github.com" > ${HOME}/.git-credentials
+          git config --global credential.helper store
+          make install-packages opts="--with saml,auth-controller,workflows"
+          rm -rf ${HOME}/.git-credentials
 
       - name: Install SAML Dependencies
         run: sudo apt-get install -y xmlsec1
