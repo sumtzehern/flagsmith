@@ -100,7 +100,7 @@ def test_process_import_request__success__expected_status(
     # Given
     if settings.WORKFLOWS_LOGIC_INSTALLED:
         # Delete any default tags created by workflows logic
-        project.tags.all().delete()
+        project.tags.all().delete()  # pragma: no cover
 
     # When
     process_import_request(import_request)
