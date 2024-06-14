@@ -1,10 +1,13 @@
 name: Run API tests with private package
 
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#     types: [labeled]
+
 on:
-  pull_request:
-    branches:
-      - main
-    types: [labeled]
+  push:
 
 defaults:
   run:
@@ -17,7 +20,7 @@ env:
 
 jobs:
   test:
-    if: ${{ github.event.label.name == 'api' }}
+    #if: ${{ github.event.label.name == 'api' }}
     runs-on: ubuntu-latest
     name: API Tests
 
@@ -44,6 +47,7 @@ jobs:
 
       - name: Install Dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           echo "https://${{ secrets.GH_PRIVATE_ACCESS_TOKEN }}:@github.com" > ${HOME}/.git-credentials
           git config --global credential.helper store
@@ -54,19 +58,22 @@ jobs:
         run: sudo apt-get install -y xmlsec1
 
       - name: Get workflows-logic package version
-        id: get_workflow_version
-        run: echo "::set-output name=workflow_version::$(poetry show workflows-logic | awk '/version/ { print $3 }')"
+        id: workflow-version
+        run: |
+          tag=$(grep -A 1 "\[tool.poetry.group.workflows.dependencies\]" pyproject.toml | awk -F '"' '{printf $4}')
+          echo "Workflow Tag: $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Checkout workflow package
         uses: actions/checkout@v4
         with:
           repository: flagsmith/flagsmith-workflows
           token: ${{ secrets.GH_PRIVATE_ACCESS_TOKEN }}
-          ref: ${{ steps.get_workflow_version.outputs.workflow_version }}
+          ref: ${{ steps.workflow-version.outputs.tag }}
           path: ./workflows_logic
 
       - name: integrate workflow tests
-        run: ln -s $GITHUB_WORKSPACE/workflows_logic/tests tests/workflow_logic/tests
+        run: ln -s $GITHUB_WORKSPACE/workflows_logic/tests tests/workflow_logic_tests
         shell: bash
         working-directory: api
 
