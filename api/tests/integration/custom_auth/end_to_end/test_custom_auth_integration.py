@@ -6,6 +6,7 @@ import pyotp
 from django.conf import settings
 from django.core import mail
 from django.urls import reverse
+from pytest_django.fixtures import SettingsWrapper
 from rest_framework import status
 from rest_framework.test import APIClient, override_settings
 
@@ -288,12 +289,13 @@ def test_throttle_login_workflows(
     api_client: APIClient,
     db: None,
     reset_cache: None,
+    settings: SettingsWrapper,
 ) -> None:
     # verify that a throttle rate exists already then set it
     # to something easier to reliably test
     assert settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["login"]
 
-    rest_framework_settings = settings.REST_FRAMEWORK.deepcopy()
+    rest_framework_settings = settings.REST_FRAMEWORK
     rest_framework_settings["DEFAULT_THROTTLE_RATES"]["login"] = "1/minute"
     settings.REST_FRAMEWORK = rest_framework_settings
 
