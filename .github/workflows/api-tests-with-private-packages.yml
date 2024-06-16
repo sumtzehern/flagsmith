@@ -1,13 +1,10 @@
 name: Run API tests with private package
 
-# on:
-#   pull_request:
-#     branches:
-#       - main
-#     types: [labeled]
-
 on:
-  push:
+  pull_request:
+    branches:
+      - main
+    types: [labeled]
 
 defaults:
   run:
@@ -20,7 +17,7 @@ env:
 
 jobs:
   test:
-    #if: ${{ github.event.label.name == 'api' }}
+    if: ${{ github.event.label.name == 'api' }}
     runs-on: ubuntu-latest
     name: API Tests
 
